@@ -54,6 +54,7 @@
 
 int main(int argc, char *argv[])
 {
+    qSetMessagePattern("Thread #%{threadid}: %{message}");
     QCoreApplication a(argc, argv);
 
     QCommandLineParser parser;

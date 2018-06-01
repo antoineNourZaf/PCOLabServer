@@ -50,96 +50,90 @@
 #include "fileserver.h"
 #include "QtWebSockets/qwebsocketserver.h"
 #include "QtWebSockets/qwebsocket.h"
-#include <QtCore/QDebug>
+#include <QDebug>
 #include "filereader.h"
 #include "response.h"
+#include "request.h"
+#include "prodconsbuffer.h"
+#include "requestdispatcherthread.h"
 
-QT_USE_NAMESPACE
-
-//! [constructor]
 FileServer::FileServer(quint16 port, bool debug, QObject *parent) :
     QObject(parent),
-    m_pWebSocketServer(new QWebSocketServer(QStringLiteral("File Server"),
+    websocketServer(new QWebSocketServer(QStringLiteral("File Server"),
                                             QWebSocketServer::NonSecureMode, this)),
-    m_debug(debug)
+    hasDebugLog(debug)
 {
-    if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
-        if (m_debug)
-            qDebug() << "Fileserver listening on port" << port;
-        connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
+    requests = new ProdConsBuffer<Request>(SIZE_REQUEST_BUFFER);
+    responses = new ProdConsBuffer<Response>(SIZE_RESPONSE_BUFFER);
+    reqDispatcher = new RequestDispatcherThread(requests, responses, hasDebugLog);
+    respDispatcher = new ResponseDispatcherThread(responses, hasDebugLog);
+    respDispatcher->start();
+    connect(respDispatcher, SIGNAL(responseReady(Response)), this, SLOT(handleResponse(Response)));
+
+    if (websocketServer->listen(QHostAddress::Any, port)) {
+        if (hasDebugLog)
+            qDebug() << "Fileserver listening on port" << port << "with strategy: one thread per request";
+        connect(websocketServer, &QWebSocketServer::newConnection,
                 this, &FileServer::onNewConnection);
-        connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &FileServer::closed);
+        connect(websocketServer, &QWebSocketServer::closed, this, &FileServer::closed);
     }
 }
-//! [constructor]
 
 FileServer::~FileServer()
 {
-    m_pWebSocketServer->close();
-    qDeleteAll(m_clients.begin(), m_clients.end());
+    websocketServer->close();
+    delete reqDispatcher;
+    delete respDispatcher;
+    qDeleteAll(clients.begin(), clients.end());
 }
 
-//! [onNewConnection]
 void FileServer::onNewConnection()
 {
-    if (m_debug)
+    if (hasDebugLog)
         qDebug() << "New client connection";
-    QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
+    QWebSocket *pSocket = websocketServer->nextPendingConnection();
     connect(pSocket, &QWebSocket::textMessageReceived, this, &FileServer::processTextMessage);
     connect(pSocket, &QWebSocket::binaryMessageReceived, this, &FileServer::processBinaryMessage);
     connect(pSocket, &QWebSocket::disconnected, this, &FileServer::socketDisconnected);
 
-    m_clients << pSocket;
+    clients[pSocket->origin()] = pSocket;
 }
-//! [onNewConnection]
 
-//! [processTextMessage]
 void FileServer::processTextMessage(QString message)
 {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
+    if (hasDebugLog)
         qDebug() << "Message received:" << message;
     if (pClient) {
-        FileReader reader(message, m_debug);
-        if (reader.fileExists()) {
-            Response r(message, reader.readAll());
-            pClient->sendTextMessage(r.toJson());
-            if (m_debug) {
-                QString json = r.toJson();
-                json.truncate(200);
-                qDebug() << "Sending response:" << json;
-            }
-        } else {
-            Response r(message, "File not found!");
-            pClient->sendTextMessage(r.toJson());
-            if (m_debug)
-                qDebug() << "Sending response:" << r.toJson();
-        }
+        Request req(message, pClient->origin());
+        requests->put(req);
     }
 }
-//! [processTextMessage]
 
-//! [processBinaryMessage]
 void FileServer::processBinaryMessage(QByteArray message)
 {
-    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
-        qDebug() << "Binary Message received:" << message;
-    if (pClient) {
-        pClient->sendBinaryMessage(message);
+   if (hasDebugLog) {
+        qDebug() << "Binary Message received (ignoring):" << message;
     }
 }
-//! [processBinaryMessage]
 
-//! [socketDisconnected]
 void FileServer::socketDisconnected()
 {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
+    if (hasDebugLog)
         qDebug() << "Client disconnected:" << pClient;
     if (pClient) {
-        m_clients.removeAll(pClient);
+        clients.remove(pClient->origin());
         pClient->deleteLater();
     }
 }
-//! [socketDisconnected]
+
+void FileServer::handleResponse(Response response)
+{
+    if (hasDebugLog) {
+        QString json = response.toJson();
+        json.truncate(200);
+        qDebug() << "Sending response:" << json;
+    }
+    clients[response.getRequest().getClientId()]->sendTextMessage(response.toJson());
+}

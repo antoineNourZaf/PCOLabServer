@@ -47,12 +47,16 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef ECHOSERVER_H
-#define ECHOSERVER_H
+#ifndef FILESERVER_H
+#define FILESERVER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QByteArray>
+#include <QObject>
+#include <QByteArray>
+#include <QMap>
+#include <QString>
+#include "responsedispatcherthread.h"
+#include "requestdispatcherthread.h"
+#include "response.h"
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -67,16 +71,23 @@ public:
 Q_SIGNALS:
     void closed();
 
-private Q_SLOTS:
+public slots:
     void onNewConnection();
     void processTextMessage(QString message);
     void processBinaryMessage(QByteArray message);
     void socketDisconnected();
+    void handleResponse(Response response);
 
 private:
-    QWebSocketServer *m_pWebSocketServer;
-    QList<QWebSocket *> m_clients;
-    bool m_debug;
+    QWebSocketServer *websocketServer;
+    QMap<QString, QWebSocket *> clients;
+    RequestDispatcherThread* reqDispatcher;
+    ResponseDispatcherThread* respDispatcher;
+    AbstractBuffer<Request>* requests;
+    AbstractBuffer<Response>* responses;
+    bool hasDebugLog;
+    const unsigned int SIZE_REQUEST_BUFFER = 7;
+    const unsigned int SIZE_RESPONSE_BUFFER = 7;
 };
 
-#endif //ECHOSERVER_H
+#endif //FILESERVER_H

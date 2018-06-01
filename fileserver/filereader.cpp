@@ -37,7 +37,7 @@ QString FileReader::readAll()
 }
 
 void FileReader::simulateHeavyEncoding() {
-    int i = 0;
+    volatile int i = 0; // volatile is required to prevent the compiler from optimizing this loop away
     while(i < 1000000000)
         i++;
 }

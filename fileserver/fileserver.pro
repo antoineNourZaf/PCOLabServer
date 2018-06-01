@@ -10,12 +10,21 @@ TEMPLATE = app
 SOURCES += \
     main.cpp \
     fileserver.cpp \
-    filereader.cpp
+    filereader.cpp \
+    requesthandler.cpp \
+    responsedispatcherthread.cpp \
+    threadpool.cpp
 
 HEADERS += \
     fileserver.h \
     filereader.h \
-    response.h
+    response.h \
+    abstractbuffer.h \
+    request.h \
+    requesthandler.h \
+    responsedispatcherthread.h \
+    threadpool.h \
+    runnable.h
 
 EXAMPLE_FILES += fileclient.html
 
