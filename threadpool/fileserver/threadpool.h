@@ -30,10 +30,18 @@ public:
 private:
 
     int maxThreadCount;
-    int currentThread;
+    int idThreadGiven;
+
+    // Le tableau contenant les threads
     QVector<RunnableLauncher*> workers;
+
+    // Le tableau de Conditions correspondant a chaque thread
     QVector<Condition*> conditions;
+
+    // id des threads qui sont libres
     QVector<int> freeThread;
+
+    // Condition pour savoir si tout les threads sont occupes
     bool isFullBusy;
     Condition fullBusy;
 

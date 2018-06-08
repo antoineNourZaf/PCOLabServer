@@ -2,56 +2,76 @@
 #include "runnablelauncher.h"
 
 ThreadPool::ThreadPool(int maxThreadCount)
-    : maxThreadCount(maxThreadCount), currentThread(0), isFullBusy(false)
+    : maxThreadCount(maxThreadCount),idThreadGiven(0),
+      isFullBusy(false)
 {
     workers    = QVector<RunnableLauncher*>();
     conditions = QVector<Condition*>();
+    freeThread = QVector<int>();
     Condition fullBusy;
 }
 
 ThreadPool::~ThreadPool() {
-
 
 }
 
 void ThreadPool::start(Runnable* runnable)
 {
     monitorIn();
+    int idFree;
+    if (freeThread.size() > 0 || !freeThread.isEmpty()) {
 
-    if (workers.size() < maxThreadCount) {
+        // On prends le premier thread libre disponible
+        idFree = freeThread.at(0);
 
-        RunnableLauncher* worker = new RunnableLauncher(this,currentThread++);
-        Condition* cond = new Condition();
-        worker->assignRunnable(runnable);
-        workers.push_back(worker);
-        conditions.push_back(cond);
-        worker->start();
+        // On le retire de la liste
+        freeThread.pop_front();
 
-    } else {
-        // Si tout les threads ont deja été crée on en
-        // cherche un qui est disponible
-        for (int i = 0; i < workers.size(); ++i) {
-            if (workers[i]->isRunnableFinished()) {
-                workers[i]->assignRunnable(runnable);
-                signal(*(conditions[i]));
-                monitorOut();
-                return;
-            }
-        }
-        // Si il n'y a aucun de libre, on attend qu'un d'eux se libère
-        // On recupere son id et on assigne le runnable
-        int idFree = 0;
-        isFullBusy = true;
-        wait(fullBusy);
-        isFullBusy = false;
-        if (freeThread.size() > 0){
+        workers.at(idFree)->assignRunnable(runnable);
+        // Le thread qui attendait peut se reveiller
+        signal(*(conditions[idFree]));
+    }
+    else {
+
+        // S'il n'y a pas de threads libre on regarde si on a
+        // atteint le nombre de threads maximum
+        if (workers.size() < maxThreadCount) {
+
+            //Si ce n'est pas le cas on peut en créer d'autres
+            RunnableLauncher* worker = new RunnableLauncher(this,idThreadGiven++);
+            Condition* cond = new Condition();
+
+            // On les push en meme temps dans les tableaux
+            // ainsi ils correspondent entre eux
+            workers.push_back(worker);
+            conditions.push_back(cond);
+
+            // on lance le thread
+            worker->assignRunnable(runnable);
+            worker->start();
+        } else {
+            // Si le nombre max de threads a ete atteint, il faut attendre
+            // qu'un thread se libère
+
+            //On signale aux threads qu'il n'y a plus de place ailleurs
+            isFullBusy = true;
+
+            //Attentes sur les threads
+            wait(fullBusy);
+
+            isFullBusy = false;
+
+            // On prends le premier thread libre disponible
             idFree = freeThread.at(0);
+
+            // On le retire de la liste
             freeThread.pop_front();
-            workers[idFree]->assignRunnable(runnable);
+
+            workers.at(idFree)->assignRunnable(runnable);
+            // Le thread qui attendait peut se reveiller
             signal(*(conditions[idFree]));
         }
     }
-
     monitorOut();
 }
 

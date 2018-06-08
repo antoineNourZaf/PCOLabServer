@@ -35,6 +35,4 @@ void RequestDispatcherThread::requestReady(Request request, ThreadPool* pool)
     RequestHandlerThread* requestHandlerThread = new RequestHandlerThread(request, responses);
     pool->start(requestHandlerThread);
 
-    //Store the created thread
-    threadsStarted.push_back(requestHandlerThread);
 }

@@ -13,7 +13,6 @@ private:
     Runnable* _runnable;
     bool finishRun;
 
-
 public:
 
     RunnableLauncher(ThreadPool* monitor, int id);
