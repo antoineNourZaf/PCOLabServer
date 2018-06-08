@@ -14,11 +14,11 @@ SOURCES += \
     requesthandler.cpp \
     responsedispatcherthread.cpp \
     requestdispatcherthread.cpp \
-    requesthandlerthread.cpp \
     threadpool.cpp \
     hoaremonitor.cpp \
     runnablelauncher.cpp \
-    prodconsbuffer.cpp
+    prodconsbuffer.cpp \
+    requesthandlerrunnable.cpp
 
 HEADERS += \
     fileserver.h \
@@ -29,12 +29,12 @@ HEADERS += \
     requesthandler.h \
     responsedispatcherthread.h \
     requestdispatcherthread.h \
-    requesthandlerthread.h \
     prodconsbuffer.h \
     runnable.h \
     threadpool.h \
     hoaremonitor.h \
-    runnablelauncher.h
+    runnablelauncher.h \
+    requesthandlerrunnable.h
 
 EXAMPLE_FILES += fileclient.html
 

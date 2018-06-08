@@ -1,6 +1,6 @@
 #include "requestdispatcherthread.h"
 #include "threadpool.h"
-#include "requesthandlerthread.h"
+#include "requesthandlerrunnable.h"
 #define MAX_THREADS QThread::idealThreadCount()
 
 RequestDispatcherThread::RequestDispatcherThread(AbstractBuffer<Request>* requests, AbstractBuffer<Response>* responses, bool hasDebugLog)
@@ -32,7 +32,7 @@ void RequestDispatcherThread::run()
 void RequestDispatcherThread::requestReady(Request request, ThreadPool* pool)
 {
 
-    RequestHandlerThread* requestHandlerThread = new RequestHandlerThread(request, responses);
+    RequestHandlerRunnable* requestHandlerThread = new RequestHandlerRunnable(request, responses);
     pool->start(requestHandlerThread);
 
 }
