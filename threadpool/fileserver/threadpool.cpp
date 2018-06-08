@@ -19,7 +19,7 @@ void ThreadPool::start(Runnable* runnable)
 {
     monitorIn();
     int idFree;
-    if (freeThread.size() > 0 || !freeThread.isEmpty()) {
+    if (!freeThread.isEmpty()) {
 
         // On prends le premier thread libre disponible
         idFree = freeThread.at(0);
@@ -59,8 +59,6 @@ void ThreadPool::start(Runnable* runnable)
             //Attentes sur les threads
             wait(fullBusy);
 
-            isFullBusy = false;
-
             // On prends le premier thread libre disponible
             idFree = freeThread.at(0);
 
@@ -77,7 +75,9 @@ void ThreadPool::start(Runnable* runnable)
 
 void ThreadPool::waitId(int id) {
     monitorIn();
-    wait(*(conditions[id]));
+    if(freeThread.contains(id)) {
+        wait(*(conditions[id]));
+    }
     monitorOut();
 }
 
@@ -87,6 +87,7 @@ bool ThreadPool::areThreadBusy() {
 
 void ThreadPool::signalFull(){
     monitorIn();
+    isFullBusy = false;
     signal(fullBusy);
     monitorOut();
 }
