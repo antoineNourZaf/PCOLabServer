@@ -61,6 +61,7 @@
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
+
 class FileServer : public QObject
 {
     Q_OBJECT

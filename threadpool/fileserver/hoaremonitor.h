@@ -15,8 +15,14 @@ class HoareMonitor
 {
 protected:
 
+    /**
+     * @brief HoareMonitor constructeur
+     */
     HoareMonitor();
 
+    /**
+     * @brief The Condition class sert de liste d'attente pour les threads ayant wait dessus
+     */
     class Condition
     {
         friend HoareMonitor;
