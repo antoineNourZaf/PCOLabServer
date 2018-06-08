@@ -38,7 +38,8 @@ void ThreadPool::start(Runnable* runnable)
         if (workers.size() < maxThreadCount) {
 
             //Si ce n'est pas le cas on peut en créer d'autres
-            RunnableLauncher* worker = new RunnableLauncher(this,idThreadGiven++);
+            RunnableLauncher* worker = new RunnableLauncher(this,idThreadGiven);
+            idThreadGiven++;
             Condition* cond = new Condition();
 
             // On les push en meme temps dans les tableaux
@@ -75,7 +76,7 @@ void ThreadPool::start(Runnable* runnable)
 
 void ThreadPool::waitId(int id) {
     monitorIn();
-    if(freeThread.contains(id)) {
+    while(freeThread.contains(id)) {
         wait(*(conditions[id]));
     }
     monitorOut();
@@ -85,16 +86,11 @@ bool ThreadPool::areThreadBusy() {
     return isFullBusy;
 }
 
-void ThreadPool::signalFull(){
-    monitorIn();
-    isFullBusy = false;
-    signal(fullBusy);
-    monitorOut();
-}
-
 void ThreadPool::addFreeThread(int id) {
     monitorIn();
     freeThread.push_back(id);
+    isFullBusy = false;
+    signal(fullBusy);
     monitorOut();
 }
 

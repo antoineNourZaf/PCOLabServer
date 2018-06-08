@@ -24,7 +24,6 @@ public:
 
     void waitId(int id);
     bool areThreadBusy();
-    void signalFull();
     void addFreeThread(int id);
 
 private:

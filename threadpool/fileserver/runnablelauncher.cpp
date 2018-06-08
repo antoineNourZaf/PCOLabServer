@@ -25,15 +25,11 @@ void RunnableLauncher::run() {
             _runnable = nullptr;
             finishRun = true;
 
-            _monitor->addFreeThread(id);
-
             // Si tout les threads étaient occupés, on signale
             // qu une place est disponible
+            _monitor->addFreeThread(id);
 
-            if (_monitor->areThreadBusy()){
-                _monitor->signalFull();
 
-            }
             // Une fois le runnable fini, on le fait patienter en attendant
             // Qu'un autre runnable arrive
             _monitor->waitId(id);
