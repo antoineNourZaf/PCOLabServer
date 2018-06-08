@@ -27,11 +27,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-    tst_threadpool.cpp
+    tst_threadpool.cpp \
+    ../fileserver/threadpool.cpp \
+    ../fileserver/hoaremonitor.cpp \
+    ../fileserver/runnablelauncher.cpp
 
 HEADERS += \
     ../fileserver/threadpool.h \
-    tst_threadpool.h
+    tst_threadpool.h \
+    ../fileserver/hoaremonitor.h \
+    ../fileserver/runnable.h \
+    ../fileserver/runnablelauncher.h
 
 INCLUDEPATH += \
     ../fileserver

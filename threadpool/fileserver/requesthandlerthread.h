@@ -6,11 +6,11 @@
 #include "response.h"
 #include "abstractbuffer.h"
 #include "requesthandler.h"
-
+#include "runnable.h"
 /**
  * @brief The RequestHandlerThread class represent a thread who will manage one request and put the response in the given response buffer
  */
-class RequestHandlerThread : public QThread {
+class RequestHandlerThread : public Runnable{
 private:
     /**
      * @brief responses buffer where the response will be stored
@@ -21,6 +21,7 @@ private:
      * @brief requestHandler request handler who is able to manage the request
      */
     RequestHandler* requestHandler;
+
 
 public:
     /**
@@ -39,6 +40,8 @@ protected:
      * @brief run start the managing of the request and put in the responses buffer when finished
      */
     void run();
+
+    QString id();
 
 };
 #endif // REQUESTHANDLERTHREAD_H

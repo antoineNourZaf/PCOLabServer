@@ -74,6 +74,12 @@ public:
     void put(T item);
 
     /**
+     * @brief tryPut add an item to the buffer if possible, return if it's not
+     * @param item the item we wish to add
+     */
+    bool tryPut(T item);
+
+    /**
      * @brief get return and delete from the buffer the "first in" item in the list or wait if there is none
      * @return the "first in" item in the list or wait if there is none
      */
@@ -84,5 +90,5 @@ public:
      */
     ~ProdConsBuffer();
 };
-#include "prodconsbuffer.hpp"
+#include "prodconsbuffer.cpp"
 #endif // PRODCONSBUFFER_H

@@ -6,11 +6,11 @@
 #include <QTime>
 
 #include "threadpool.h"
+#include "runnablelauncher.h"
 
 #define RUNTIME 10000
 #define RUNTIMEINMS 10
 
-///
 /// \brief The ThreadpoolTest class
 /// This class embeds all the tests of the ThreadPool
 class ThreadpoolTest : public QObject

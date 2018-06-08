@@ -11,7 +11,12 @@ void RequestHandlerThread::run()
     responses->put(requestHandler->handle());
 }
 
+
 RequestHandlerThread::~RequestHandlerThread()
 {
     delete requestHandler;
+}
+
+QString RequestHandlerThread::id() {
+    return "";
 }

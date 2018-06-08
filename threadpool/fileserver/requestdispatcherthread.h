@@ -8,7 +8,7 @@
 #include "request.h"
 #include "requesthandlerthread.h"
 #include "QVector"
-
+#include "threadpool.h"
 /**
  *  @author Jimmy Verdasca & Antoine Nourazar
  */
@@ -58,7 +58,7 @@ private:
      * and send the response generated to the response dispatcher
      * @param request that we want to manage
      */
-    void requestReady(Request request);
+    void requestReady(Request request, ThreadPool* pool);
 
 
 };
