@@ -5,7 +5,6 @@
 #include "threadpool.h"
 #include "tst_threadpool.h"
 
-
 ThreadpoolTest::ThreadpoolTest()
 {
 }
@@ -67,7 +66,7 @@ void ThreadpoolTest::testCase2()
     ThreadPool pool(10);
 
     // Starts the runnables
-    for(int i = 0; i < 100; i++) {
+    for(int i = 0; i < 100000; i++) {
         QString runnableId = QString("Run%1").arg(i);
         TestRunnable *runnable = new TestRunnable(this, runnableId);
         runnableStarted(runnableId);
@@ -75,7 +74,6 @@ void ThreadpoolTest::testCase2()
     }
 
     QThread::usleep(1000 * (10 * RUNTIMEINMS + 30));
-
     // Check that every runnable is really finished
     QMapIterator<QString, bool> i(m_runningState);
     while (i.hasNext()) {

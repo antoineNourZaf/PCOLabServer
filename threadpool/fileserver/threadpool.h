@@ -21,10 +21,14 @@ public:
     caller until a thread becomes available again. */
     void start(Runnable* runnable);
 
-
+    // Permet aux threads de se mettre en attente afin que le threadpool
+    // les reveilles
     void waitId(int id);
+
+    //Informe si tout les threads sont occupés
     bool areThreadBusy();
 
+    //Ajoute un thread libre à la liste
     void addFreeThread(int id);
 
 private:

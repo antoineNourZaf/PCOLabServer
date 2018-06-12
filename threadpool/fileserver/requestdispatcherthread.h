@@ -6,7 +6,7 @@
 #include "abstractbuffer.h"
 #include "response.h"
 #include "request.h"
-#include "requesthandlerthread.h"
+#include "requesthandlerrunnable.h"
 #include "QVector"
 #include "threadpool.h"
 /**
@@ -52,7 +52,7 @@ private:
      */
     bool hasDebugLog;
 
-    QVector<RequestHandlerThread *> threadsStarted;
+    QVector<RequestHandlerRunnable *> threadsStarted;
     /**
      * @brief requestReady create a new thread who will manage the request
      * and send the response generated to the response dispatcher
