@@ -4,7 +4,7 @@
 
 #include "readerwritercache.h"
 #include "tst_readerwriterchache.h"
-
+#include <iostream>
 
 ReaderWriterCacheTest::ReaderWriterCacheTest()
 {

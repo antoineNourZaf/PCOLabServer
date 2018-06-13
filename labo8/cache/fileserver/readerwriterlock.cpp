@@ -1,10 +1,9 @@
 #include "readerwriterlock.h"
 
-ReaderWriterLock::ReaderWriterLock() : mutex(1), nbReader(0), nbWriter(0),
+ReaderWriterLock::ReaderWriterLock() : mutex(), nbReader(0), nbWriter(0),
     nbWaitingReader(0), nbWaitingWriter(0)
 {
-    waitingReader;
-    waitingWriter;
+
 }
 
 void ReaderWriterLock::lockReading() {

@@ -7,6 +7,7 @@
 #include "request.h"
 #include "response.h"
 #include "readerwriterlock.h"
+#include <QDateTime>
 
 class ReaderWriterCache
 {
@@ -26,9 +27,7 @@ private:
 		InvalidationTimer(ReaderWriterCache* cache): cache(cache) {}
 
 	protected:
-		void run() {
-			// TODO
-		}
+        void run();
 	};
 
 	QHash<QString, TimestampedResponse> map;
@@ -36,11 +35,13 @@ private:
 	int staleDelaySec;
 	InvalidationTimer* timer;
 	ReaderWriterLock lock;
+    QDateTime time;
 
 public:
 	ReaderWriterCache(int invalidationDelaySec, int staleDelaySec);
+    ~ReaderWriterCache();
 
-	Option<Response> tryGetCachedResponse(Request& request);
+    Option<Response> tryGetCachedResponse(Request& request);
 	void putResponse(Response& response);
 };
 

@@ -7,6 +7,8 @@
 #include "abstractbuffer.h"
 #include "requesthandler.h"
 #include "runnable.h"
+#include "readerwritercache.h"
+
 /**
  * @brief The RequestHandlerRunnable class represent a thread who will manage one request and put the response in the given response buffer
  */
@@ -21,7 +23,8 @@ private:
      * @brief requestHandler request handler who is able to manage the request
      */
     RequestHandler* requestHandler;
-
+    Request req;
+    ReaderWriterCache* cache;
 
 public:
     /**
@@ -29,7 +32,7 @@ public:
      * @param request that the thread have to manage
      * @param responses buffer where the response will be stored
      */
-    RequestHandlerRunnable(Request request, AbstractBuffer<Response>* responses);
+    RequestHandlerRunnable(Request request, AbstractBuffer<Response>* responses, ReaderWriterCache* cache);
 
     /**
       * @brief destructor

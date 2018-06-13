@@ -58,7 +58,7 @@ private:
      * and send the response generated to the response dispatcher
      * @param request that we want to manage
      */
-    void requestReady(Request request, ThreadPool* pool);
+    void requestReady(Request request, ThreadPool* pool, ReaderWriterCache* cache);
 
 
 };
