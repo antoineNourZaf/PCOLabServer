@@ -13,13 +13,13 @@ void ReaderWriterLock::lockReading() {
         // S'il y a des redacteurs, on attends
         nbWaitingReader++;
         waitingReader.wait(&mutex);
+        // On décrémente la file d'attente
+        nbWaitingReader--;
     }
 
     // On accede à la ressource
     nbReader++;
 
-    // On décrémente la file d'attente
-    nbWaitingReader--;
 
     mutex.unlock();
 }
@@ -33,8 +33,9 @@ void ReaderWriterLock::unlockReading() {
 
     // S'il n'y a pas de lecteurs en attente et accédant à la ressource
     // et s'il y a des redacteurs en attente, on leur permet d'y accéder
-    if (nbWaitingWriter > 0 && nbWaitingReader == 0 && nbReader == 0)
+    if (nbWaitingWriter > 0 && nbWriter == 0 && nbWaitingReader == 0 && nbReader == 0) {
         waitingWriter.wakeOne();
+    }
 
     mutex.unlock();
 }
@@ -49,12 +50,12 @@ void ReaderWriterLock::lockWriting() {
         // On augmente la file d'attente des redacteurs
         nbWaitingWriter++;
         waitingWriter.wait(&mutex);
+        // On diminue la file d'attente
+        nbWaitingWriter--;
     }
     // On accède à la ressource
     nbWriter++;
 
-    // On diminue la file d'attente
-    nbWaitingWriter--;
 
     mutex.unlock();
 
