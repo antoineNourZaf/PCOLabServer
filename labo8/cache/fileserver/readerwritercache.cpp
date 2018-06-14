@@ -9,9 +9,7 @@ ReaderWriterCache::ReaderWriterCache(int invalidationDelaySec, int staleDelaySec
 {
     InvalidationTimer *timer = new InvalidationTimer(this);
 
-    timer->run();
-
-    std::cout << "fini" << std::endl;
+    timer->start();
 
 }
 
@@ -56,10 +54,8 @@ void ReaderWriterCache::InvalidationTimer::run() {
 
         // Acces en ecriture dans la cache
 
-        std::cout << "notlocked" << std::endl;
         cache->lock.lockWriting();
 
-        std::cout << "locked" << std::endl;
         for (QHash<QString, TimestampedResponse>::iterator i = cache->map.begin(); i != cache->map.end(); ++i){
             // Si la différence de temps entre le placement de la response en cache est
             // maintenant est plus grand que le délais de rafraîchissement, alors la donnée est obsolète
