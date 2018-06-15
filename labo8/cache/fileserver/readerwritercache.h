@@ -34,8 +34,7 @@ private:
 	int invalidationDelaySec;
 	int staleDelaySec;
 	InvalidationTimer* timer;
-	ReaderWriterLock lock;
-    QDateTime time;
+    ReaderWriterLock lock;
 
 public:
 	ReaderWriterCache(int invalidationDelaySec, int staleDelaySec);

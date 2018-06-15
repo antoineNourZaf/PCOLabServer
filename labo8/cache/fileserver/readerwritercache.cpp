@@ -7,21 +7,26 @@
 ReaderWriterCache::ReaderWriterCache(int invalidationDelaySec, int staleDelaySec):
     invalidationDelaySec(invalidationDelaySec), staleDelaySec(staleDelaySec)
 {
-    InvalidationTimer *timer = new InvalidationTimer(this);
+    timer = new InvalidationTimer(this);
 
     timer->start();
+    QThread::usleep(10000);
 
 }
 
 ReaderWriterCache::~ReaderWriterCache()
 {
+    if (timer->isRunning()) {
+    timer->terminate();
+    timer->wait();
+    }
     delete timer;
 }
 
 void ReaderWriterCache::putResponse(Response &response) {
 
     // Creation d'une reponse datée a partir d'une reponse
-    TimestampedResponse responseT = {response, (long)time.toTime_t()};
+    TimestampedResponse responseT = {response, QDateTime::currentSecsSinceEpoch()};
 
     // Acces en ecriture
     lock.lockWriting();
@@ -53,19 +58,19 @@ void ReaderWriterCache::InvalidationTimer::run() {
     while (true) {
 
         // Acces en ecriture dans la cache
-
+        this->setTerminationEnabled(false);
         cache->lock.lockWriting();
 
         for (QHash<QString, TimestampedResponse>::iterator i = cache->map.begin(); i != cache->map.end(); ++i){
             // Si la différence de temps entre le placement de la response en cache est
             // maintenant est plus grand que le délais de rafraîchissement, alors la donnée est obsolète
-            if ( (cache->time.toTime_t() - i->timestamp) > cache->staleDelaySec){
+            if ( (QDateTime::currentSecsSinceEpoch() - i->timestamp) > cache->staleDelaySec){
                 cache->map.remove(i->response.getResponse());
             }
         }
 
         cache->lock.unlockWriting();
-
+        this->setTerminationEnabled(true);
         // On attends le temps qu'il faut avant de revérifier l'état de la cache
         sleep(cache->invalidationDelaySec);
     }
